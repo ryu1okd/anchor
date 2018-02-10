@@ -8,7 +8,7 @@ CREATE TABLE anchor.memo (
 );
 
 CREATE TABLE anchor.tag (
-  id bigint AUTO_INCREMENT NOT NULL PRIMARY KEY
+  id bigint AUTO_INCREMENT NOT NULL PRIMARY KEY,
   name TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -18,4 +18,3 @@ CREATE TABLE anchor.memo_tag (
   memo_id bigint,
   tag_id bigint
 );
-
