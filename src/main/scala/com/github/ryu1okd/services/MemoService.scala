@@ -3,6 +3,7 @@ package com.github.ryu1okd.services
 import com.github.ryu1okd.models.{Memo, Memos}
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object MemoService {
   def delete(id: Long): Future[Int] = {
