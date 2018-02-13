@@ -6,14 +6,14 @@ import com.github.ryu1okd.routes._
 /**
   * server object
   */
-object WebServer extends HttpApp with MemoRoutes with HealthCheckRoutes {
+object WebServer extends HttpApp with MemoRoutes with HealthCheckRoutes with TagRoutes {
 
   override def routes: Route = {
     pathEndOrSingleSlash {
       get {
         complete("Hello ToDo List made by Scala.")
       }
-    } ~ healthCheckRoutes ~ memoRoute
+    } ~ healthCheckRoutes ~ memoRoute ~ tagRoute
   }
 
 }

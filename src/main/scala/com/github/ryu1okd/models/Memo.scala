@@ -8,6 +8,7 @@ import slick.sql.SqlProfile.ColumnOption.SqlType
 import spray.json._
 import com.github.ryu1okd.protocols.DateTimeJsonProtocol._
 import com.github.tototoshi.slick.MySQLJodaSupport._
+import slick.lifted
 
 import scala.concurrent.Future
 
@@ -18,7 +19,7 @@ trait MemoJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val memoFormat = jsonFormat4(Memo.apply)
 }
 
-class Memos(tag: Tag) extends Table[Memo] (tag, "memo") {
+class Memos(tag: lifted.Tag) extends Table[Memo] (tag, "memo") {
   def id = column[Option[Long]]("id", PrimaryKey, AutoInc)
   def body = column[String]("body")
   def createdAt = column[Option[DateTime]]("created_at", SqlType("DATETIME DEFAULT CURRENT_TIMESTAMP"))
