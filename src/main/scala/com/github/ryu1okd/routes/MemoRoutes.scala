@@ -3,9 +3,10 @@ package com.github.ryu1okd.routes
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import com.github.ryu1okd.models.{Memo, MemoJsonProtocol}
 import akka.http.scaladsl.server.Directives._
-import com.github.ryu1okd.services.MemoService
+import com.github.ryu1okd.protocols.MemoTagsProtocol
+import com.github.ryu1okd.services.{MemoService, MemoTagService}
 
-trait MemoRoutes extends MemoJsonProtocol {
+trait MemoRoutes extends MemoJsonProtocol with MemoTagsProtocol {
 
   lazy val memoRoute =
     pathPrefix("memos") {
@@ -19,10 +20,11 @@ trait MemoRoutes extends MemoJsonProtocol {
         }
       } ~ path(LongNumber) { id =>
         get {
-          onSuccess( MemoService.findById(id)) {
-            case Some(memo) => complete(memo)
-            case None => complete(StatusCodes.NotFound, "")
-          }
+          complete(MemoTagService.findByMemoId(id))
+//          onSuccess( MemoService.findById(id)) {
+//            case Some(memo) => complete(memo)
+//            case None => complete(StatusCodes.NotFound, "")
+//          }
         } ~ put {
           entity(as[Memo]) {memo =>
             onSuccess(MemoService.update(memo)) {

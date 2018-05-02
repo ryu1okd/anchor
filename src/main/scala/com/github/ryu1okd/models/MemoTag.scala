@@ -1,16 +1,17 @@
 package com.github.ryu1okd.models
 
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import org.joda.time.DateTime
 import slick.jdbc.MySQLProfile.api._
-import slick.sql.SqlProfile.ColumnOption.SqlType
+import spray.json._
+import com.github.ryu1okd.protocols.DateTimeJsonProtocol._
+import com.github.tototoshi.slick.MySQLJodaSupport._
 import slick.lifted
-import spray.json.{DefaultJsonProtocol, JsArray, JsNumber, JsObject, JsString, PrettyPrinter}
 
 import scala.concurrent.Future
 
 case class MemoTag (memoId: Option[Long], tagId: Option[Long])
 
-class MemoTags(tag: lifted.Tag) extends Table[MemoTag] (tag, "memoTag") {
+class MemoTags(tag: lifted.Tag) extends Table[MemoTag] (tag, "memo_tag") {
   def memoId = column[Option[Long]]("memo_id")
   def tagId = column[Option[Long]]("tag_id")
   def * = (memoId, tagId) <> (MemoTag.tupled, MemoTag.unapply)
@@ -23,24 +24,12 @@ class MemoTags(tag: lifted.Tag) extends Table[MemoTag] (tag, "memoTag") {
 
 object MemoTags extends TableQuery(new MemoTags(_)) {
 
+  val tags = TableQuery[Tags]
+
   private val db = Database.forConfig("mysql")
 
-  private val memos = TableQuery[Memos]
-  private val tags = TableQuery[Tags]
-
-  def findMemoAndTags(memoId: Option[Long]): Future[Option[(Memo, Option[Seq[Tag]])]] = {
-//    val q = for{
-//      m <- memos.filter(_.id === memoId)
-//      mt <- this if mt.memoId === m.id
-//      ts <- tags if mt.tagId === ts.id
-//    } yield (m, ts)
-
-    val q = for {
-      ((m, mts), ts) <- memos joinLeft this on (_.id === _.memoId) join tags on (_._2.tagId === _.id)
-      if memos.filter( _.id === memoId)
-    } yield (m, ts)
-
+  def findTagsByMemoId(memoId: Option[Long]): Future[Seq[(MemoTag, Tag)]] = {
+    val q = this.join(tags).on(_.tagId === _.id).filter{ case (mts, ts) => mts.memoId === memoId}
     db.run(q.result)
-
   }
 }
