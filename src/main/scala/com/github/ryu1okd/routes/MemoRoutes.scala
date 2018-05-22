@@ -20,11 +20,10 @@ trait MemoRoutes extends MemoJsonProtocol with MemoTagsProtocol {
         }
       } ~ path(LongNumber) { id =>
         get {
-          complete(MemoTagService.findByMemoId(id))
-//          onSuccess( MemoService.findById(id)) {
-//            case Some(memo) => complete(memo)
-//            case None => complete(StatusCodes.NotFound, "")
-//          }
+          onSuccess(MemoTagService.findByMemoId(id)) {
+            case Some(t) => complete(t)
+            case None => complete(StatusCodes.NotFound, "")
+          }
         } ~ put {
           entity(as[Memo]) {memo =>
             onSuccess(MemoService.update(memo)) {

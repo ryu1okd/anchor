@@ -1,9 +1,10 @@
 package com.github.ryu1okd.models
 
 import org.joda.time.DateTime
-import slick.jdbc.MySQLProfile.api._
 import spray.json._
 import com.github.ryu1okd.protocols.DateTimeJsonProtocol._
+import slick.jdbc.MySQLProfile.api._
+import spray.json._
 import com.github.tototoshi.slick.MySQLJodaSupport._
 import slick.lifted
 
