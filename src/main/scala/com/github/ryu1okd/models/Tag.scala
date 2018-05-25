@@ -7,7 +7,6 @@ import slick.lifted
 import slick.jdbc.MySQLProfile.api._
 import com.github.tototoshi.slick.MySQLJodaSupport._
 import com.github.ryu1okd.protocols.DateTimeJsonProtocol._
-import slick.sql.SqlProfile.ColumnOption.SqlType
 import spray.json.{DefaultJsonProtocol, PrettyPrinter}
 
 import scala.concurrent.Future
@@ -21,8 +20,8 @@ trait TagJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
 class Tags(tag: lifted.Tag) extends Table[Tag] (tag, "tag") {
   def id = column[Option[Long]]("id", PrimaryKey, AutoInc)
   def name = column[String]("name")
-  def createdAt = column[Option[DateTime]]("created_at", SqlType("DATETIME DEFAULT CURRENT_TIMESTAMP"))
-  def updatedAt = column[Option[DateTime]]("updated_at", SqlType("DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+  def createdAt = column[Option[DateTime]]("created_at")
+  def updatedAt = column[Option[DateTime]]("updated_at")
   def * = (id, name, createdAt, updatedAt) <> (Tag.tupled, Tag.unapply)
 }
 
@@ -31,11 +30,14 @@ object Tags extends TableQuery(new Tags(_)) {
   private val db = Database.forConfig("mysql")
 
   def create(tag: Tag): Future[Option[Long]] = {
-    db.run((this returning this.map(_.id)) += tag)
+    val date = new DateTime()
+    val t = tag.copy(createdAt = Some(date), updatedAt = Some(date))
+    db.run((this returning this.map(_.id)) += t)
   }
 
   def update(tag: Tag): Future[Int] = {
-    db.run(this.filter(_.id === tag.id).update(tag))
+    val t = tag.copy(updatedAt = Some(new DateTime()))
+    db.run(this.filter(_.id === tag.id).update(t))
   }
 
   def delete(id: Option[Long]): Future[Int] = {

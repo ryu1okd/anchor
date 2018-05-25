@@ -1,6 +1,9 @@
 package com.github.ryu1okd
 
+import scala.util.Properties
+
 object Main extends App {
 
-  WebServer.startServer("127.0.0.1", 8080)
+  val port = sys.env.getOrElse("PORT", "8080").toInt
+  WebServer.startServer("0.0.0.0", port)
 }

@@ -1,4 +1,6 @@
-name := "todo_list_scala"
+enablePlugins(JavaServerAppPackaging)
+
+name := "anchor"
 
 version := "0.1"
 
@@ -18,3 +20,5 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-testkit" % "10.1.0-RC1" % "test",
   "org.scalatest" %% "scalatest" % "3.0.4" % "test"
 )
+
+herokuAppName in Compile := "anchor-app-api"

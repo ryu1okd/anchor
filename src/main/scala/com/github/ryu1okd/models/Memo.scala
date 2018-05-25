@@ -4,7 +4,6 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import org.joda.time.DateTime
 import slick.ast.ColumnOption.{AutoInc, PrimaryKey}
 import slick.jdbc.MySQLProfile.api._
-import slick.sql.SqlProfile.ColumnOption.SqlType
 import spray.json._
 import com.github.ryu1okd.protocols.DateTimeJsonProtocol._
 import com.github.tototoshi.slick.MySQLJodaSupport._
@@ -22,8 +21,8 @@ trait MemoJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
 class Memos(tag: lifted.Tag) extends Table[Memo] (tag, "memo") {
   def id = column[Option[Long]]("id", PrimaryKey, AutoInc)
   def body = column[String]("body")
-  def createdAt = column[Option[DateTime]]("created_at", SqlType("DATETIME DEFAULT CURRENT_TIMESTAMP"))
-  def updatedAt = column[Option[DateTime]]("updated_at", SqlType("DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+  def createdAt = column[Option[DateTime]]("created_at")
+  def updatedAt = column[Option[DateTime]]("updated_at")
   def * = (id, body, createdAt, updatedAt) <> (Memo.tupled, Memo.unapply)
 }
 
@@ -32,11 +31,14 @@ object Memos extends TableQuery(new Memos(_)) {
   private val db = Database.forConfig("mysql")
 
   def create(memo: Memo): Future[Option[Long]] = {
-    db.run((this returning this.map(_.id)) += memo)
+    val date = new DateTime()
+    val m = memo.copy(createdAt = Some(date), updatedAt = Some(date))
+    db.run((this returning this.map(_.id)) += m)
   }
 
   def update(memo:Memo): Future[Int] = {
-    db.run(this.filter(_.id === memo.id).update(memo))
+    val m = memo.copy(updatedAt = Some(new DateTime()))
+    db.run(this.filter(_.id === memo.id).update(m))
   }
 
   def delete(id:Option[Long]): Future[Int] = {

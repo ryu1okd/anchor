@@ -18,7 +18,7 @@ trait TagRoutes extends TagJsonProtocol {
           }
         }
       } ~ path(LongNumber) { id =>
-        get{
+        get {
           onSuccess(TagService.findById(id)) {
             case Some(tag) => complete(tag)
             case None => complete(StatusCodes.NotFound, "")
