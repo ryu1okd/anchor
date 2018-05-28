@@ -1,10 +1,12 @@
 package com.github.ryu1okd.routes
 
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
-import com.github.ryu1okd.models.{Memo, MemoJsonProtocol}
+import com.github.ryu1okd.models.{Memo, MemoJsonProtocol, Tag}
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import com.github.ryu1okd.protocols.MemoTagsProtocol
 import com.github.ryu1okd.services.{MemoService, MemoTagService}
+import spray.json._
 
 trait MemoRoutes extends MemoJsonProtocol with MemoTagsProtocol {
 
@@ -12,7 +14,9 @@ trait MemoRoutes extends MemoJsonProtocol with MemoTagsProtocol {
     pathPrefix("memos") {
       pathEndOrSingleSlash {
         get {
-          complete(MemoService.find)
+          onSuccess(MemoTagService.find()) { memotag =>
+            complete(memotag.map(_.toJson))
+          }
         } ~ post {
           entity(as[Memo]) { memo =>
             complete(StatusCodes.Created, MemoService.add(memo))

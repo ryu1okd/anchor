@@ -7,6 +7,7 @@ import slick.jdbc.MySQLProfile.api._
 import spray.json._
 import com.github.tototoshi.slick.MySQLJodaSupport._
 import slick.lifted
+import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.Future
 
@@ -28,6 +29,10 @@ object MemoTags extends TableQuery(new MemoTags(_)) {
   val tags = TableQuery[Tags]
 
   private val db = Database.forConfig("mysql")
+
+  def findAll(): Future[Seq[(MemoTag, Tag)]] = {
+    db.run(this.join(tags).on(_.tagId === _.id).result)
+  }
 
   def findTagsByMemoId(memoId: Option[Long]): Future[Seq[(MemoTag, Tag)]] = {
     val q = this.join(tags).on(_.tagId === _.id).filter{ case (mts, ts) => mts.memoId === memoId}

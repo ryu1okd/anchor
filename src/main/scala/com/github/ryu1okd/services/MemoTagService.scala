@@ -7,6 +7,17 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object MemoTagService {
 
+  def find(): Future[Seq[(Memo, Seq[Tag])]] = {
+    for {
+      memos <- MemoService.find()
+      memoTags <- MemoTags.findAll()
+    } yield {
+      memos.map { m =>
+        (m, memoTags.filter(p => p._1.memoId == m.id).map(_._2))
+      }
+    }
+  }
+
   def findByMemoId(memoId: Long): Future[Option[(Memo, Seq[Tag])]] = {
     for {
       memo <- Memos find Some(memoId)

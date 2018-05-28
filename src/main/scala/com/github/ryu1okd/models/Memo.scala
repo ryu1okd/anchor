@@ -38,7 +38,7 @@ object Memos extends TableQuery(new Memos(_)) {
 
   def update(memo:Memo): Future[Int] = {
     val m = memo.copy(updatedAt = Some(new DateTime()))
-    db.run(this.filter(_.id === memo.id).update(m))
+    db.run(this.filter(_.id === memo.id).map(mq => (mq.body, mq.updatedAt)).update((m.body, m.updatedAt)))
   }
 
   def delete(id:Option[Long]): Future[Int] = {
