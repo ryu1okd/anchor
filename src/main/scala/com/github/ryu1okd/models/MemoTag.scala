@@ -1,13 +1,11 @@
 package com.github.ryu1okd.models
 
+import slick.lifted
+import slick.jdbc.MySQLProfile.api._
 import org.joda.time.DateTime
 import spray.json._
-import com.github.ryu1okd.protocols.DateTimeJsonProtocol._
-import slick.jdbc.MySQLProfile.api._
-import spray.json._
 import com.github.tototoshi.slick.MySQLJodaSupport._
-import slick.lifted
-import com.typesafe.config.ConfigFactory
+import com.github.ryu1okd.protocols.DateTimeJsonProtocol._
 
 import scala.concurrent.Future
 
@@ -26,9 +24,9 @@ class MemoTags(tag: lifted.Tag) extends Table[MemoTag] (tag, "memo_tag") {
 
 object MemoTags extends TableQuery(new MemoTags(_)) {
 
-  val tags = TableQuery[Tags]
-
   private val db = Database.forConfig("mysql")
+
+  private val tags = TableQuery[Tags]
 
   def findAll(): Future[Seq[(MemoTag, Tag)]] = {
     db.run(this.join(tags).on(_.tagId === _.id).result)
